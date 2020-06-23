@@ -4,7 +4,7 @@ from keras.datasets import mnist
 from keras.utils.np_utils import to_categorical
 import numpy as np
 from keras import backend as K
-from devol import DEvol, GenomeHandler
+#from devol import DEvol, GenomeHandler
 
 # **Prepare dataset**
 # This problem uses mnist, a handwritten digit classification problem used

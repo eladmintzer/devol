@@ -14,9 +14,9 @@ import operator
 import gc
 import os
 from datetime import datetime
-from keras.callbacks import EarlyStopping
-from keras.models import load_model
-import keras.backend as K
+from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.models import load_model
+import tensorflow.keras.backend as K
 from sklearn.metrics import log_loss
 import numpy as np
 
@@ -49,7 +49,7 @@ class DEvol:
                     will be stored in
         """
         self.genome_handler = genome_handler
-        self.datafile = data_path or (datetime.now().ctime() + '.csv')
+        self.datafile = data_path or (datetime.now().ctime() + 'test_devol.csv')
         self._bssf = -1
 
         if os.path.isfile(data_path) and os.stat(data_path).st_size > 1:
@@ -58,7 +58,7 @@ class DEvol:
                               % data_path))
 
         print("Genome encoding and metric data stored at", self.datafile, "\n")
-        with open(self.datafile, 'a') as csvfile:
+        with open(self.datafile, 'w') as csvfile:
             writer = csv.writer(csvfile, delimiter=',', quotechar='"',
                                 quoting=csv.QUOTE_MINIMAL)
             metric_cols = ["Val Loss", "Val Accuracy"]
@@ -206,7 +206,7 @@ class DEvol:
 
         if K.backend() == 'tensorflow':
             K.clear_session()
-            tf.reset_default_graph()
+            tf.compat.v1.reset_default_graph()
 
         print('An error occurred and the model could not train:')
         print(error)

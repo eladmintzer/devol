@@ -5,6 +5,35 @@ from keras.models import Sequential
 from keras.layers import Activation, Dense, Dropout, Flatten
 from keras.layers.convolutional import Convolution2D, MaxPooling2D
 from keras.layers.normalization import BatchNormalization
+from keras import backend as K
+
+
+def fbeta_keras(y_true, y_pred, threshold_shift=0.05):
+    '''
+    f_beta score implematation using keras
+    :param y_true: true label
+    :param y_pred: predicted label
+    :param threshold_shift:
+    :return: calculate f0.25 score
+    '''
+    beta = 0.25
+
+    # just in case of hipster activation at the final layer
+    y_pred = K.clip(y_pred, 0, 1)
+
+    # shifting the prediction threshold from .5 if needed
+    y_pred_bin = K.round(y_pred + threshold_shift)
+
+    tp = K.sum(K.round(y_true * y_pred_bin)) + K.epsilon()
+    fp = K.sum(K.round(K.clip(y_pred_bin - y_true, 0, 1)))
+    fn = K.sum(K.round(K.clip(y_true - y_pred, 0, 1)))
+
+    precision = tp / (tp + fp)
+    recall = tp / (tp + fn)
+
+    beta_squared = beta ** 2
+    return (beta_squared + 1) * (precision * recall) / (beta_squared * precision + recall + K.epsilon())
+
 
 class GenomeHandler:
     """
@@ -188,7 +217,7 @@ class GenomeHandler:
         model.add(Dense(self.n_classes, activation='softmax'))
         model.compile(loss='categorical_crossentropy',
             optimizer=self.optimizer[genome[offset]],
-            metrics=["accuracy"])
+            metrics=[fbeta_keras])
         return model
 
     def genome_representation(self):
